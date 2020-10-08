@@ -11,12 +11,14 @@
 
 namespace Respect\Validation\Rules;
 
+use Respect\Validation\TestCase;
+
 /**
  * @group  rule
  * @covers Respect\Validation\Rules\MinimumAge
  * @covers Respect\Validation\Exceptions\MinimumAgeException
  */
-class MininumAgeTest extends \PHPUnit_Framework_TestCase
+class MininumAgeTest extends TestCase
 {
     /**
      * @dataProvider providerForValidDateValidMinimumAge
@@ -49,6 +51,15 @@ class MininumAgeTest extends \PHPUnit_Framework_TestCase
         $minimumAge = new MinimumAge($age, $format);
         $this->assertFalse($minimumAge->__invoke($input));
         $this->assertFalse($minimumAge->assert($input));
+    }
+
+    /**
+     * @expectedException Respect\Validation\Exceptions\ComponentException
+     * @expectedExceptionMessage The age must be a integer value
+     */
+    public function testShouldNotAcceptNonIntegerAgeOnConstructor()
+    {
+        new MinimumAge('L12');
     }
 
     public function providerForValidDateValidMinimumAge()

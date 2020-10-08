@@ -1,20 +1,20 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Interfaces\Http;
 
-/**
- * Environment Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface EnvironmentInterface
 {
+    /**
+     * Create mock environment
+     *
+     * @param  array $settings Array of custom environment keys and values
+     *
+     * @return static
+     */
     public static function mock(array $settings = []);
 }

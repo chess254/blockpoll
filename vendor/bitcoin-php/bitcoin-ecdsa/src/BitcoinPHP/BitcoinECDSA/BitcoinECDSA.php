@@ -77,6 +77,18 @@ class BitcoinECDSA
         return $this->networkPrefix;
     }
 
+    /**
+     * Returns the current network prefix for WIF, '80' = main network, 'ef' = test network.
+     *
+     * @return string (hexa)
+     */
+    public function getPrivatePrefix(){
+        if($this->networkPrefix =='6f')
+            return 'ef';
+        else
+           return '80';
+    }
+
     /***
      * Permutation table used for Base58 encoding and decoding.
      *
@@ -807,12 +819,6 @@ class BitcoinECDSA
             return false;
     }
 
-    public function private_prefix(){
-        if($this->networkPrefix =='6f')
-            return 'ef';
-        else
-           return '80';
-    }
     /***
      * returns the private key under the Wallet Import Format
      *
@@ -831,7 +837,7 @@ class BitcoinECDSA
         while(strlen($k) < 64)
             $k = '0' . $k;
         
-        $secretKey  = $this->private_prefix() . $k;
+        $secretKey  =  $this->getPrivatePrefix() . $k;
         
         if($compressed) {
             $secretKey .= '01';

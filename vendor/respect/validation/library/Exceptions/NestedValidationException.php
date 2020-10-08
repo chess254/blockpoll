@@ -35,9 +35,32 @@ class NestedValidationException extends ValidationException implements IteratorA
     }
 
     /**
+     * @param string $path
+     * @param ValidationException $exception
+     *
+     * @return ValidationException
+     */
+    private function getExceptionForPath($path, ValidationException $exception)
+    {
+        if ($path === $exception->guessId()) {
+            return $exception;
+        }
+
+        if (!$exception instanceof self) {
+            return $exception;
+        }
+
+        foreach ($exception as $subException) {
+            return $subException;
+        }
+
+        return $exception;
+    }
+
+    /**
      * @param array $paths
      *
-     * @return self
+     * @return array
      */
     public function findMessages(array $paths)
     {
@@ -47,14 +70,23 @@ class NestedValidationException extends ValidationException implements IteratorA
             $numericKey = is_numeric($key);
             $path = $numericKey ? $value : $key;
 
-            $exception = $this->findRelated($path);
-
-            if (is_object($exception) && !$numericKey) {
-                $exception->setTemplate($value);
+            if (!($exception = $this->getRelatedByName($path))) {
+                $exception = $this->findRelated($path);
             }
 
             $path = str_replace('.', '_', $path);
-            $messages[$path] = $exception ? $exception->getMainMessage() : '';
+
+            if (!$exception) {
+                $messages[$path] = '';
+                continue;
+            }
+
+            $exception = $this->getExceptionForPath($path, $exception);
+            if (!$numericKey) {
+                $exception->setTemplate($value);
+            }
+
+            $messages[$path] = $exception->getMainMessage();
         }
 
         return $messages;
@@ -90,6 +122,31 @@ class NestedValidationException extends ValidationException implements IteratorA
         return $recursiveIteratorIterator;
     }
 
+    private function isSkippable(ValidationException $exception)
+    {
+        if (!$exception instanceof self) {
+            return false;
+        }
+
+        if (1 !== $exception->getRelated()->count()) {
+            return false;
+        }
+
+        if (!$exception->hasCustomTemplate()) {
+            return true;
+        }
+
+        return $this->hasChildTemplate($exception);
+    }
+
+    private function hasChildTemplate(self $exception)
+    {
+        $exception->getRelated()->rewind();
+        $childException = $exception->getRelated()->current();
+
+        return $childException->getMessage() === $exception->getMessage();
+    }
+
     /**
      * @return SplObjectStorage
      */
@@ -104,9 +161,7 @@ class NestedValidationException extends ValidationException implements IteratorA
         $lastDepthOriginal = 0;
         $knownDepths = [];
         foreach ($recursiveIteratorIterator as $childException) {
-            if ($childException instanceof self
-                && $childException->getRelated()->count() > 0
-                && $childException->getRelated()->count() < 2) {
+            if ($this->isSkippable($childException)) {
                 continue;
             }
 
@@ -115,8 +170,7 @@ class NestedValidationException extends ValidationException implements IteratorA
 
             if (isset($knownDepths[$currentDepthOriginal])) {
                 $currentDepth = $knownDepths[$currentDepthOriginal];
-            } elseif ($currentDepthOriginal > $lastDepthOriginal
-                && ($this->hasCustomTemplate() || $exceptionIterator->count() != 1)) {
+            } elseif ($currentDepthOriginal > $lastDepthOriginal) {
                 ++$currentDepth;
             }
 
@@ -163,18 +217,21 @@ class NestedValidationException extends ValidationException implements IteratorA
      */
     public function getFullMessage()
     {
-        $marker = '-';
         $messages = [];
-        $exceptions = $this->getIterator();
+        $leveler = 1;
 
-        if ($this->hasCustomTemplate() || count($exceptions) != 1) {
-            $messages[] = sprintf('%s %s', $marker, $this->getMessage());
+        if (!$this->isSkippable($this)) {
+            $leveler = 0;
+            $messages[] = sprintf('- %s', $this->getMessage());
         }
 
+        $exceptions = $this->getIterator();
         foreach ($exceptions as $exception) {
-            $depth = $exceptions[$exception]['depth'];
-            $prefix = str_repeat(' ', $depth * 2);
-            $messages[] = sprintf('%s%s %s', $prefix, $marker, $exception->getMessage());
+            $messages[] = sprintf(
+                '%s- %s',
+                str_repeat(' ', ($exceptions[$exception]['depth'] - $leveler) * 2),
+                $exception->getMessage()
+            );
         }
 
         return implode(PHP_EOL, $messages);

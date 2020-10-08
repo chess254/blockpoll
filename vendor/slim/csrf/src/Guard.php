@@ -139,19 +139,86 @@ class Guard
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        // Validate POST, PUT, DELETE, PATCH requests
+        // // Validate POST, PUT, DELETE, PATCH requests
+        // if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
+        //     $body = $request->getParsedBody();
+        //     $body = $body ? (array)$body : [];
+        //     $name = isset($body[$this->prefix . '_name']) ? $body[$this->prefix . '_name'] : false;
+        //     $value = isset($body[$this->prefix . '_value']) ? $body[$this->prefix . '_value'] : false;
+        //     if (!$name || !$value || !$this->validateToken($name, $value)) {
+        //         // Need to regenerate a new token, as the validateToken removed the current one.
+        //         $request = $this->generateNewToken($request);
+
+        //         $failureCallable = $this->getFailureCallable();
+        //         return $failureCallable($request, $response, $next);
+        //     }
+        // }
+        // // Generate new CSRF token
+        // $request = $this->generateNewToken($request);
+
+        // // Enforce the storage limit
+        // $this->enforceStorageLimit();
+
+        // return $next($request, $response);
+
+        $route = $request->getAttribute('routeInfo');
+
+        $routeRequestInfo = $route['request'];
+      
+        $requestUrl = $routeRequestInfo[1];
+      
+      
+        if ($requestUrl == 'http://localhost/api/sigpairs')
+        {
+            //This will just return the request to your application with applying the csrf.
+            return $next($request, $response);
+      
+        }
+        else
+        {
+      
+        // //   $this->validateStorage();
+      
+        //   // Validate POST, PUT, DELETE, PATCH requests
+        //   if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
+        //       $body = $request->getParsedBody();
+        //       $body = $body ? (array)$body : [];
+        //       $name = isset($body[$this->prefix . '_name']) ? $body[$this->prefix . '_name'] : false;
+        //       $value = isset($body[$this->prefix . '_value']) ? $body[$this->prefix . '_value'] : false;
+        //       if (!$name || !$value || !$this->validateToken($name, $value)) {
+        //           // Need to regenerate a new token, as the validateToken removed the current one.
+        //           $request = $this->generateNewToken($request);
+      
+        //           $failureCallable = $this->getFailureCallable();
+        //           return $failureCallable($request, $response, $next);
+        //       }
+        //   }
+      
+        //   // Generate new CSRF token if persistentTokenMode is false, or if a valid keyPair has not yet been stored
+        //   if (!$this->persistentTokenMode || !$this->loadLastKeyPair()) {
+        //       $request = $this->generateNewToken($request);
+        //   }
+      
+        //   // Enforce the storage limit
+        //   $this->enforceStorageLimit();
+        
+
+
+
+
+         // Validate POST, PUT, DELETE, PATCH requests
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
             $body = $request->getParsedBody();
             $body = $body ? (array)$body : [];
             $name = isset($body[$this->prefix . '_name']) ? $body[$this->prefix . '_name'] : false;
             $value = isset($body[$this->prefix . '_value']) ? $body[$this->prefix . '_value'] : false;
-            if (!$name || !$value || !$this->validateToken($name, $value)) {
-                // Need to regenerate a new token, as the validateToken removed the current one.
-                $request = $this->generateNewToken($request);
+            // if (!$name || !$value || !$this->validateToken($name, $value)) {
+            //     // Need to regenerate a new token, as the validateToken removed the current one.
+            //     $request = $this->generateNewToken($request);
 
-                $failureCallable = $this->getFailureCallable();
-                return $failureCallable($request, $response, $next);
-            }
+            //     $failureCallable = $this->getFailureCallable();
+            //     return $failureCallable($request, $response, $next);
+            // }
         }
         // Generate new CSRF token
         $request = $this->generateNewToken($request);
@@ -160,6 +227,10 @@ class Guard
         $this->enforceStorageLimit();
 
         return $next($request, $response);
+      
+        }
+      
+        //   return $next($request, $response);
     }
 
     /**

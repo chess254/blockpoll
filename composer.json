@@ -1,14 +1,14 @@
 {
-    "name": "blockvotes",
-    "description": "My dissertation paper named an e-voting system based on blockchain using ring signature.",
+    "name": "chess254/blockvotes",
+    "description": "an e-voting system based on blockchain using ring signature.",
     "type": "project",
-    "keywords": ["evoting"],
-    "homepage": "https://github.com/yfgeek/BlockVotes",
+    "keywords": ["evoting", "blockchain", "blockpoll"],
+    "homepage": "https://60four.co.ke",
     "license": "MIT",
     "authors": [
         {
-            "name": "Yifan",
-            "email": "yifanb@gmail.com"
+            "name": "chess254",
+            "email": "lae2006a@yahoo.com"
         }
     ],
     "require": {

@@ -5,6 +5,8 @@ PHP whoops error on slim framework
 ## Status
 
 [![Build Status](https://travis-ci.org/zeuxisoo/php-slim-whoops.png?branch=master)](https://travis-ci.org/zeuxisoo/php-slim-whoops)
+[![Downloads this Month](https://img.shields.io/packagist/dm/zeuxisoo/slim-whoops.svg)](https://packagist.org/packages/zeuxisoo/slim-whoops)
+[![Latest Stable Version](https://poser.pugx.org/zeuxisoo/slim-whoops/v/stable)](https://github.com/zeuxisoo/php-slim-whoops/releases)
 
 ## Installation
 
@@ -70,7 +72,7 @@ A handler like:
 
 	$simplyErrorHandler = function($exception, $inspector, $run) {
 	    $message = $exception->getMessage();
-	    $title   =  $inspector->getExceptionName();
+	    $title   = $inspector->getExceptionName();
 
 	    echo "{$title} -> {$message}";
 	    exit;
@@ -87,15 +89,18 @@ Global mode case like:
 
 ## Options
 
-Opening referenced files with your favorite editor or IDE
+E.g. Opening referenced files with your favorite editor or IDE and so on
 
 	$app = new App([
 	    'settings' => [
 	    	 // Enable whoops
-	        'debug'         => true,
+	        'debug' => true,
 
 	        // Support click to open editor
 	        'whoops.editor' => 'sublime',
+
+	        // Set page title
+	        'whoops.page_title' => 'Custom page title',
 
 	        // Display call stack in orignal slim error when debug is off
 	        'displayErrorDetails' => true,

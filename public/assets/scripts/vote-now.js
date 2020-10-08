@@ -125,6 +125,7 @@ function fetchBitcoinPrivateKey(){
             keyPair = Bitcoin.ECPair.fromWIF(wif,network);
             bitcoinAddress = keyPair.getAddress();
             $.getJSON("https://sochain.com/api/v2/get_tx_unspent/BTCTEST/"+bitcoinAddress,function(result){
+            // $.getJSON("https://sochain.com/api/v2/address/BTCTEST/"+bitcoinAddress,function(result){
                 var txb = new Bitcoin.TransactionBuilder(network);
 
                 var last = result.data.txs.length - 1;

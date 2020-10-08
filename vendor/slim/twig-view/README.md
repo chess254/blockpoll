@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/slimphp/Twig-View.svg?branch=master)](https://travis-ci.org/slimphp/Twig-View)
 
-This is a Slim Framework view helper built on top of the Twig templating component. You can use this component to create and render templates in your Slim Framework application.
+This is a Slim Framework view helper built on top of the Twig templating component. You can use this component to create and render templates in your Slim Framework application. It works with Twig 1.18+ (PHP5.5+) and with Twig 2 (PHP7).
 
 ## Install
 
@@ -30,8 +30,9 @@ $container['view'] = function ($c) {
     ]);
     
     // Instantiate and add Slim specific extension
-    $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
-    $view->addExtension(new Slim\Views\TwigExtension($c['router'], $basePath));
+    $router = $c->get('router');
+    $uri = \Slim\Http\Uri::createFromEnvironment(new \Slim\Http\Environment($_SERVER));
+    $view->addExtension(new \Slim\Views\TwigExtension($router, $uri));
 
     return $view;
 };
@@ -43,22 +44,41 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
     ]);
 })->setName('profile');
 
+// Render from string
+$app->get('/hi/{name}', function ($request, $response, $args) {
+    $str = $this->view->fetchFromString('<p>Hi, my name is {{ name }}.</p>', [
+        'name' => $args['name']
+    ]);
+    $response->getBody()->write($str);
+    return $response;
+});
+
 // Run app
 $app->run();
 ```
 
 ## Custom template functions
 
-This component exposes a custom `path_for()` function to your Twig templates. You can use this function to generate complete URLs to any Slim application named route. This is an example Twig template:
+`TwigExtension` provides these functions to your Twig templates:
+
+* `path_for()` - returns the URL for a given route.
+* `base_url()` - returns the `Uri` object's base URL.
+* `is_current_path()` - returns true is the provided route name and parameters are valid for the current path.
+* `current_path()` - renders the current path, with or without the query string.
+
+
+You can use `path_for` to generate complete URLs to any Slim application named route and use `is_current_path` to determine if you need to mark a link as active as shown in this example Twig template:
 
     {% extends "layout.html" %}
 
     {% block body %}
     <h1>User List</h1>
     <ul>
-        <li><a href="{{ path_for('profile', { 'name': 'josh' }) }}">Josh</a></li>
+        <li><a href="{{ path_for('profile', { 'name': 'josh' }) }}" {% if is_current_path('profile', { 'name': 'josh' }) %}class="active"{% endif %}>Josh</a></li>
+        <li><a href="{{ path_for('profile', { 'name': 'andrew' }) }}">Andrew</a></li>
     </ul>
     {% endblock %}
+
 
 ## Testing
 

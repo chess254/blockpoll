@@ -54,7 +54,7 @@ abstract class Composite extends Constraint
                 $returnResult
             );
         } catch (ExpectationFailedException $e) {
-            $this->fail($other, $description);
+            $this->fail($other, $description, $e->getComparisonFailure());
         }
     }
 
@@ -65,6 +65,6 @@ abstract class Composite extends Constraint
      */
     public function count()
     {
-        return count($this->innerConstraint);
+        return \count($this->innerConstraint);
     }
 }

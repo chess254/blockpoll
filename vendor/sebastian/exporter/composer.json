@@ -23,9 +23,14 @@
         },
         {
             "name": "Bernhard Schussek",
-            "email": "bschussek@2bepublished.at"
+            "email": "bschussek@gmail.com"
         }
     ],
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "prefer-stable": true,
     "require": {
         "php": "^7.0",
         "sebastian/recursion-context": "^3.0"
@@ -41,7 +46,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "3.0.x-dev"
+            "dev-master": "3.1.x-dev"
         }
     }
 }

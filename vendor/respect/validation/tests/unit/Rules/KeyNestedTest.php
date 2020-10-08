@@ -11,6 +11,7 @@
 
 namespace Respect\Validation\Rules;
 
+use Respect\Validation\TestCase;
 use ArrayObject;
 
 /**
@@ -18,7 +19,7 @@ use ArrayObject;
  * @covers Respect\Validation\Rules\KeyNested
  * @covers Respect\Validation\Exceptions\KeyNestedException
  */
-class KeyNestedTest extends \PHPUnit_Framework_TestCase
+class KeyNestedTest extends TestCase
 {
     public function testArrayWithPresentKeysWillReturnTrueForFullPathValidator()
     {
@@ -67,7 +68,7 @@ class KeyNestedTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($rule->validate($array));
     }
 
-    public function testOnjectWithPresentPropertiesWillReturnTrueForDirtyPathValidator()
+    public function testObjectWithPresentPropertiesWillReturnTrueForDirtyPathValidator()
     {
         $object = (object) [
             'bar' => (object) [

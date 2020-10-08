@@ -167,7 +167,7 @@ $.getJSON("https://sochain.com/api/v2/get_tx_received/BTCTEST/n4Kc1AwFos3aZRvD3T
     }
 
 });
-}
+
 
 function fetchCandidate(txid) {
     // console.log(txid);

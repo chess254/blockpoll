@@ -10,12 +10,12 @@
 namespace PHPUnit\Util\TestDox;
 
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\WarningTestCase;
-use PHPUnit\Framework\Warning;
-use PHPUnit\Framework\TestSuite;
-use PHPUnit\Framework\TestListener;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestListener;
+use PHPUnit\Framework\TestSuite;
+use PHPUnit\Framework\Warning;
+use PHPUnit\Framework\WarningTestCase;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Util\Printer;
 
@@ -37,7 +37,7 @@ abstract class ResultPrinter extends Printer implements TestListener
     /**
      * @var int
      */
-    protected $testStatus = false;
+    protected $testStatus;
 
     /**
      * @var array
@@ -75,12 +75,12 @@ abstract class ResultPrinter extends Printer implements TestListener
     protected $incomplete = 0;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $currentTestClassPrettified;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $currentTestMethodPrettified;
 
@@ -252,7 +252,7 @@ abstract class ResultPrinter extends Printer implements TestListener
             return;
         }
 
-        $class = get_class($test);
+        $class = \get_class($test);
 
         if ($this->testClass != $class) {
             if ($this->testClass != '') {
@@ -272,16 +272,18 @@ abstract class ResultPrinter extends Printer implements TestListener
             $this->tests     = [];
         }
 
-        $annotations = $test->getAnnotations();
+        if ($test instanceof TestCase) {
+            $annotations = $test->getAnnotations();
 
-        if (isset($annotations['method']['testdox'][0])) {
-            $this->currentTestMethodPrettified = $annotations['method']['testdox'][0];
-        } else {
-            $this->currentTestMethodPrettified = $this->prettifier->prettifyTestMethod($test->getName(false));
-        }
+            if (isset($annotations['method']['testdox'][0])) {
+                $this->currentTestMethodPrettified = $annotations['method']['testdox'][0];
+            } else {
+                $this->currentTestMethodPrettified = $this->prettifier->prettifyTestMethod($test->getName(false));
+            }
 
-        if ($test instanceof TestCase && $test->usesDataProvider()) {
-            $this->currentTestMethodPrettified .= ' ' . $test->dataDescription();
+            if ($test->usesDataProvider()) {
+                $this->currentTestMethodPrettified .= ' ' . $test->dataDescription();
+            }
         }
 
         $this->testStatus = BaseTestRunner::STATUS_PASSED;
@@ -387,7 +389,7 @@ abstract class ResultPrinter extends Printer implements TestListener
 
         if (!empty($this->groups)) {
             foreach ($test->getGroups() as $group) {
-                if (in_array($group, $this->groups)) {
+                if (\in_array($group, $this->groups)) {
                     return true;
                 }
             }
@@ -397,7 +399,7 @@ abstract class ResultPrinter extends Printer implements TestListener
 
         if (!empty($this->excludeGroups)) {
             foreach ($test->getGroups() as $group) {
-                if (in_array($group, $this->excludeGroups)) {
+                if (\in_array($group, $this->excludeGroups)) {
                     return false;
                 }
             }

@@ -11,7 +11,8 @@ namespace PHPUnit\Framework\Constraint;
 
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Util\InvalidArgumentHelper;
-use SebastianBergmann;
+use SebastianBergmann\Comparator\ComparisonFailure;
+use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
 /**
  * Constraint that checks if one value is equal to another.
@@ -50,11 +51,6 @@ class IsEqual extends Constraint
     protected $ignoreCase = false;
 
     /**
-     * @var SebastianBergmann\Comparator\ComparisonFailure
-     */
-    protected $lastFailure;
-
-    /**
      * @param mixed $value
      * @param float $delta
      * @param int   $maxDepth
@@ -67,19 +63,19 @@ class IsEqual extends Constraint
     {
         parent::__construct();
 
-        if (!is_numeric($delta)) {
+        if (!\is_numeric($delta)) {
             throw InvalidArgumentHelper::factory(2, 'numeric');
         }
 
-        if (!is_int($maxDepth)) {
+        if (!\is_int($maxDepth)) {
             throw InvalidArgumentHelper::factory(3, 'integer');
         }
 
-        if (!is_bool($canonicalize)) {
+        if (!\is_bool($canonicalize)) {
             throw InvalidArgumentHelper::factory(4, 'boolean');
         }
 
-        if (!is_bool($ignoreCase)) {
+        if (!\is_bool($ignoreCase)) {
             throw InvalidArgumentHelper::factory(5, 'boolean');
         }
 
@@ -117,7 +113,7 @@ class IsEqual extends Constraint
             return true;
         }
 
-        $comparatorFactory = SebastianBergmann\Comparator\Factory::getInstance();
+        $comparatorFactory = ComparatorFactory::getInstance();
 
         try {
             $comparator = $comparatorFactory->getComparatorFor(
@@ -132,13 +128,13 @@ class IsEqual extends Constraint
                 $this->canonicalize,
                 $this->ignoreCase
             );
-        } catch (SebastianBergmann\Comparator\ComparisonFailure $f) {
+        } catch (ComparisonFailure $f) {
             if ($returnResult) {
                 return false;
             }
 
             throw new ExpectationFailedException(
-                trim($description . "\n" . $f->getMessage()),
+                \trim($description . "\n" . $f->getMessage()),
                 $f
             );
         }
@@ -155,28 +151,28 @@ class IsEqual extends Constraint
     {
         $delta = '';
 
-        if (is_string($this->value)) {
-            if (strpos($this->value, "\n") !== false) {
+        if (\is_string($this->value)) {
+            if (\strpos($this->value, "\n") !== false) {
                 return 'is equal to <text>';
-            } else {
-                return sprintf(
-                    'is equal to <string:%s>',
-                    $this->value
-                );
-            }
-        } else {
-            if ($this->delta != 0) {
-                $delta = sprintf(
-                    ' with delta <%F>',
-                    $this->delta
-                );
             }
 
-            return sprintf(
-                'is equal to %s%s',
-                $this->exporter->export($this->value),
-                $delta
+            return \sprintf(
+                "is equal to '%s'",
+                $this->value
             );
         }
+
+        if ($this->delta != 0) {
+            $delta = \sprintf(
+                ' with delta <%F>',
+                $this->delta
+            );
+        }
+
+        return \sprintf(
+            'is equal to %s%s',
+            $this->exporter->export($this->value),
+            $delta
+        );
     }
 }

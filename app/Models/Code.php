@@ -82,8 +82,9 @@ class Code extends Model
      */
     public function validateCode($code){
         $query = $this->where('code', $code)->first();
-        if($query && $query->is_used=='0')
+        if($query && $query->is_used=='0'){
                 return $query;
+        }
         return false;
     }
 

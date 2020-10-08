@@ -24,7 +24,16 @@ class LogicalAnd extends Constraint
     /**
      * @var Constraint
      */
-    protected $lastConstraint = null;
+    protected $lastConstraint;
+
+    public static function fromConstraints(Constraint ...$constraints): self
+    {
+        $constraint = new self;
+
+        $constraint->constraints = \array_values($constraints);
+
+        return $constraint;
+    }
 
     /**
      * @param Constraint[] $constraints
@@ -73,6 +82,7 @@ class LogicalAnd extends Constraint
         foreach ($this->constraints as $constraint) {
             if (!$constraint->evaluate($other, $description, true)) {
                 $success = false;
+
                 break;
             }
         }
@@ -116,7 +126,7 @@ class LogicalAnd extends Constraint
         $count = 0;
 
         foreach ($this->constraints as $constraint) {
-            $count += count($constraint);
+            $count += \count($constraint);
         }
 
         return $count;

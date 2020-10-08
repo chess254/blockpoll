@@ -9,6 +9,10 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
+use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Util\Json;
+use SebastianBergmann\Comparator\ComparisonFailure;
+
 /**
  * Asserts whether or not two JSON objects are equal.
  */
@@ -42,12 +46,12 @@ class JsonMatches extends Constraint
      */
     protected function matches($other)
     {
-        list($error, $recodedOther) = $this->canonicalizeJson($other);
+        list($error, $recodedOther) = Json::canonicalize($other);
         if ($error) {
             return false;
         }
 
-        list($error, $recodedValue) = $this->canonicalizeJson($this->value);
+        list($error, $recodedValue) = Json::canonicalize($this->value);
         if ($error) {
             return false;
         }
@@ -55,38 +59,43 @@ class JsonMatches extends Constraint
         return $recodedOther == $recodedValue;
     }
 
-    /*
-     * To allow comparison of JSON strings, first process them into a consistent
-     * format so that they can be compared as strings.
-     * @return array ($error, $canonicalized_json)  The $error parameter is used
-     * to indicate an error decoding the json.  This is used to avoid ambiguity
-     * with JSON strings consisting entirely of 'null' or 'false'.
+    /**
+     * Throws an exception for the given compared value and test description
+     *
+     * @param mixed             $other             Evaluated value or object.
+     * @param string            $description       Additional information about the test
+     * @param ComparisonFailure $comparisonFailure
+     *
+     * @throws ExpectationFailedException
      */
-    private function canonicalizeJson($json)
+    protected function fail($other, $description, ComparisonFailure $comparisonFailure = null)
     {
-        $decodedJson = json_decode($json, true);
-        if (json_last_error()) {
-            return [true, null];
-        }
-        $this->recursiveSort($decodedJson);
-        $reencodedJson = json_encode($decodedJson);
+        if ($comparisonFailure === null) {
+            list($error) = Json::canonicalize($other);
+            if ($error) {
+                parent::fail($other, $description);
 
-        return [false, $reencodedJson];
-    }
-
-    /*
-     * JSON object keys are unordered while PHP array keys are ordered.
-     * Sort all array keys to ensure both the expected and actual values have
-     * their keys in the same order.
-     */
-    private function recursiveSort(&$json)
-    {
-        if (is_array($json)) {
-            ksort($json);
-            foreach ($json as $key => &$value) {
-                $this->recursiveSort($value);
+                return;
             }
+
+            list($error) = Json::canonicalize($this->value);
+            if ($error) {
+                parent::fail($other, $description);
+
+                return;
+            }
+
+            $comparisonFailure = new ComparisonFailure(
+                \json_decode($this->value),
+                \json_decode($other),
+                Json::prettify($this->value),
+                Json::prettify($other),
+                false,
+                'Failed asserting that two json values are equal.'
+            );
         }
+
+        parent::fail($other, $description, $comparisonFailure);
     }
 
     /**
@@ -96,7 +105,7 @@ class JsonMatches extends Constraint
      */
     public function toString()
     {
-        return sprintf(
+        return \sprintf(
             'matches JSON string "%s"',
             $this->value
         );

@@ -11,6 +11,7 @@
 
 namespace Respect\Validation\Rules;
 
+use Respect\Validation\TestCase;
 use Respect\Validation\Validator;
 
 /**
@@ -18,7 +19,7 @@ use Respect\Validation\Validator;
  * @covers Respect\Validation\Rules\Not
  * @covers Respect\Validation\Exceptions\NotException
  */
-class NotTest extends \PHPUnit_Framework_TestCase
+class NotTest extends TestCase
 {
     /**
      * @dataProvider providerForValidNot
@@ -37,6 +38,18 @@ class NotTest extends \PHPUnit_Framework_TestCase
     {
         $not = new Not($v);
         $this->assertFalse($not->assert($input));
+    }
+
+    /**
+     * @dataProvider providerForSetName
+     */
+    public function testNotSetName($v)
+    {
+        $not = new Not($v);
+        $not->setName('Foo');
+
+        $this->assertEquals('Foo', $not->getName());
+        $this->assertEquals('Foo', $v->getName());
     }
 
     public function providerForValidNot()
@@ -60,6 +73,17 @@ class NotTest extends \PHPUnit_Framework_TestCase
             [new AllOf(new OneOf(new Numeric(), new IntVal())), 13.37],
             [new OneOf(new Numeric(), new IntVal()), 13.37],
             [Validator::oneOf(Validator::numeric(), Validator::intVal()), 13.37],
+        ];
+    }
+
+    public function providerForSetName()
+    {
+        return [
+            [new IntVal()],
+            [new AllOf(new Numeric, new IntVal)],
+            [new Not(new Not(new IntVal()))],
+            [Validator::intVal()->setName('Bar')],
+            [Validator::noneOf(Validator::numeric(), Validator::intVal())],
         ];
     }
 }
