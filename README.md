@@ -3,9 +3,7 @@
 
 <img src="about/logo.png" width = "50%" height = "50%"  align=center />
 
-**Demo Video: https://www.youtube.com/watch?v=4c6pQg3q4Vc**
 
-**Slides**: [blockvotes.pdf](blockvotes.pdf)
 
 # Topic 
 
@@ -41,11 +39,6 @@ OP_RETURN is a script opcode used to mark a transaction output as invalid. Since
 
 ![](about/stack.png)
 
-## The Protocol
-
-Please see the thesis.
-
-[Wu, Yifan. "An E-voting System based on Blockchain and Ring Signature." Master. University of Birmingham (2017).](http://www.dgalindo.es/mscprojects/yifan.pdf)
 
 ## Instruction
 
