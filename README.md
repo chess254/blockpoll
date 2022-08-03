@@ -1,7 +1,6 @@
-# BlockVotes
+# BlockPoll
 **An e-voting system based on blockchain using ring signature**
 
-<img src="about/logo.png" width = "50%" height = "50%"  align=center />
 
 
 
